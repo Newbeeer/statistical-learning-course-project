@@ -278,7 +278,7 @@ class right_neural_net_EM(nn.Module):
                 continue
             index = int(name[2:])
             weight[index-1] = module.weight.data
-        np.save('./expertise_agg',weight)
+        np.save('./expertise_aggdog',weight)
 
 # models and optimizers for different methods
 left_model_em = left_neural_net().cuda()

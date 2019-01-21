@@ -22,10 +22,10 @@ agg_expertise = np.zeros((5,2))
 agg_expertise[:,0] = t[:,0,0]
 agg_expertise[:,1] = t[:,1,1]
 
-em_expertise = np.load('./expertise_em.npy')
+em_expertise = np.load('./expertise_emdog.npy')
 em_expertise = 1/(1+np.exp(-0.25 * em_expertise))
 
-fix_expertise = np.load('./expertise_fix.npy')
+fix_expertise = np.load('./expertise_fixdog.npy')
 fix_expertise = 1/(1+np.exp(-0.25 * fix_expertise))
 
 rss_fix = (np.abs(fix_expertise - m)).sum() /5
@@ -55,4 +55,4 @@ plt.title('Expertise')
 plt.xlabel('sensitivity')
 plt.ylabel('specificity')
 plt.legend()
-plt.savefig('expertise_g.png')
+plt.savefig('expertise_dog.png')

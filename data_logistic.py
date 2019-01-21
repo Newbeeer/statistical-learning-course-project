@@ -86,7 +86,7 @@ class Im_EP(torch.utils.data.Dataset):
 
                     right_data[i][expert][ep[i][expert]] = 1
 
-            #Case 2: Agg
+            #Case 2:
             if Config.experiment_case == 2:
 
                 for expert in range(self.expert_num):
@@ -94,6 +94,19 @@ class Im_EP(torch.utils.data.Dataset):
                     ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=self.as_expertise[expert][labels[i]]))
                     right_data[i][expert][ep[i][expert]] = 1
 
+            if Config.experiment_case == 3:
+                for expert in range(self.expert_num):
+
+                    if labels[i] == 0:
+                        prob = 1 / (3 + int(np.random.choice(5,1)))
+                        ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=[1-prob, prob]))
+
+                    if labels[i] == 1:
+                        prob = 1 / (3 + int(np.random.choice(5, 1)))
+                        #prob = 1 / (1 + np.exp(-Config.as_expertise_lambda[expert][1] * (self.mu[i]-0.5)**2))
+                        ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=[prob, 1-prob]))
+
+                    right_data[i][expert][ep[i][expert]] = 1
 
         return right_data
 

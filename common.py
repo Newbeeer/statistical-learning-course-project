@@ -8,16 +8,19 @@ import argparse
 parser = argparse.ArgumentParser(description='CoTraining')
 parser.add_argument('--case', type=int, metavar='N',
                     help='case')
+parser.add_argument('--root-dir', default="../dogdata", metavar='DIR', help='path to dataset')
 parser.add_argument('--expert_num', type=int, metavar='N',
                     help='case')
 parser.add_argument('--device', type=int, metavar='N',
                     help='case')
 parser.add_argument('--expertise', type=int, metavar='N',
                     help='case')
+parser.add_argument('--save', type=int, metavar='N',
+                    help='case')
 args = parser.parse_args()
 
 class Config:
-    data_root = '../dogdata'
+    data_root = args.root_dir
     #data_root  = '/data1/xuyilun/LUNA16/data'
     training_size = 12500
     test_size = 12500
@@ -50,7 +53,7 @@ class Config:
         senior_num = 5
 
 
-
+    save = args.save
     missing_label = np.array([0, 0, 0, 0, 0])
     missing = False
     num_classes = 2
