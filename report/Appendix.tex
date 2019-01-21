@@ -1,0 +1,26 @@
+\subsection{The generation of datapoint difficulty and expert parameters}
+
+\paragraph{Two-dimensional Gaussian Mixture dataset} Denote ground-truth Bayesian classification boundary as $\bm{w}$ and datapoint $i$ as $x_i$, and the synthesized datapoint difficulty $\mu_i = \frac{1}{1+w^Tx_i}$.
+
+\paragraph{Dogs vs Cats dataset} We pre-trained a neural network $f$ and use the ouput of $\mu_i = f(x_i)$ w.r.t datapoint i as the image difficulty.
+
+The expert parameters is calcualted by $\bm{\lambda^1} = 4\log{\frac{\alpha}{1-\alpha}}$ and $\bm{\lambda^2} = 4\log{\frac{\beta}{1-\beta}}$, which is the inverse of $\alpha = \sigma\lbrace\bm{\lambda}^{1}(p-1/2)^{2}\rbrace$ and $\beta = \sigma\lbrace\bm{\lambda}^{2}(p-1/2)^{2}\rbrace$ where $p=1$ or $p = 0$.
+
+\subsection{Network Architecture}
+
+The  architecture of the four-layer neural network is:
+
+conv1-relu-maxpooling + conv2-relu-maxpooling + conv3-relu-maxpooling + conv4-relu-maxpooling + batch normalization + fc-relu-dropout + fc + softmax
+
+\subsection{Initialization} 
+
+For all EM based algorithm, we initialize the parameters $\{\alpha,\beta\}$ using the method in \cite{raykar2010learning}, then initialize $\{\bm{\lambda}\}$.
+
+\begin{align}\label{initial}
+	\alpha^r = \log{\frac{\sum\limits_{i=1}^N Q(y_i=c)\mathbbm{1}(y_i^r=1)}{\sum\limits_{i=1}^N Q(y_i=1)}}\\
+	\beta^r = \log{\frac{\sum\limits_{i=1}^N Q(y_i=0)\mathbbm{1}(y_i^r=0)}{\sum\limits_{i=1}^N Q(y_i=0)}}\\
+	\bm{\lambda_r}^1 = 4* \log{\frac{\alpha^r}{1-\alpha^r}} \\
+	\bm{\lambda_r}^2 = 4* \log{\frac{\beta^r}{1-\beta^r}}
+\end{align}
+
+where $\mathbbm{1}(y_i^m=c')=1$ when $y_i^m=c'$ and $\mathbbm{1}(y_i^m=c')=0$ when $y_i^m\neq c'$ and N is the total number of datapoints. We average all crowdsourced labels to obtain $Q(y_i=c) := \frac{1}{R}\sum\limits_{r=1}^R \mathbbm{1}(y_i^r=c)$.

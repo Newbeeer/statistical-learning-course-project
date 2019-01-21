@@ -1,0 +1,319 @@
+%
+% This is the LaTeX template file for lecture notes for CS294-8,
+% Computational Biology for Computer Scientists.  When preparing 
+% LaTeX notes for this class, please use this template.
+%
+% To familiarize yourself with this template, the body contains
+% some examples of its use.  Look them over.  Then you can
+% run LaTeX on this file.  After you have LaTeXed this file then
+% you can look over the result either by printing it out with
+% dvips or using xdvi.
+%
+% This template is based on the template for Prof. Sinclair's CS 270.
+
+\documentclass[twoside]{article}
+\usepackage{graphics}
+\setlength{\oddsidemargin}{0.25 in}
+\setlength{\evensidemargin}{-0.25 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+\usepackage{tikz}
+
+\usepackage{amsmath,amsfonts}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage[all]{xy}
+\usepackage[linesnumbered, ruled]{algorithm2e}
+\SetKwRepeat{Do}{do}{while}
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+\newcounter{lecnum}
+\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+%
+% The following macro is used to generate the header.
+%
+\newcommand{\lecture}[4]{
+   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{lecnum}{#1}
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf Machine Learning
+                        \hfill Spring 2018} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #2  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Lecturer: #3 \hfill Scribe: #4} }
+      \vspace{2mm}}
+   }
+   \end{center}
+   \markboth{Lecture #1: #2}{Lecture #1: #2}
+   {\bf Disclaimer}: {\it These notes have not been subjected to the
+   usual scrutiny reserved for formal publications.  They may be distributed
+   outside this class only with the permission of the Instructor.}
+   \vspace*{4mm}
+}
+
+%
+% Convention for citations is authors' initials followed by the year.
+% For example, to cite a paper by Leighton and Maggs you would type
+% \cite{LM89}, and to cite a paper by Strassen you would type \cite{S69}.
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+% Also commands that create a suitable format for the reference list.
+\renewcommand{\cite}[1]{[#1]}
+\def\beginrefs{\begin{list}%
+        {[\arabic{equation}]}{\usecounter{equation}
+         \setlength{\leftmargin}{2.0truecm}\setlength{\labelsep}{0.4truecm}%
+         \setlength{\labelwidth}{1.6truecm}}}
+\def\endrefs{\end{list}}
+\def\bibentry#1{\item[\hbox{[#1]}]}
+
+%Use this command for a figure; it puts a figure in wherever you want it.
+%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+\newcommand{\fig}[3]{
+			\vspace{#2}
+			\begin{center}
+			Figure \thelecnum.#1:~#3
+			\end{center}
+	}
+% Use these for theorems, lemmas, proofs, etc.
+\newtheorem{theorem}{Theorem}[lecnum]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newenvironment{proof}{{\bf Proof:}}{\hfill\rule{2mm}{2mm}}
+
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+
+\begin{document}
+%FILL IN THE RIGHT INFO.
+%\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{10}{On-Line Learning}{Liwei Wang}{Yilun Xu,Hongyin Chen}
+%\footnotetext{These notes are partially based on those of Nigel Mansell.}
+
+% **** YOUR NOTES GO HERE:
+
+% Some general latex examples and examples making use of the
+% macros follow.  
+%**** IN GENERAL, BE BRIEF. LONG SCRIBE NOTES, NO MATTER HOW WELL WRITTEN,
+%**** ARE NEVER READ BY ANYBODY.
+
+% ===========================================
+\section{On-line Learning with Experts Advice}
+\subsection{Weighted majority algorithm}
+There are $n$ experts $E_1, E_2, ..., E_n$. On each round $t = 1, 2, ..., T$,$E_i$ gives prediction $\tilde{y}_{t, i}$ . The environment(or adverary) outputs the true label $y_t$ after seeing the predictions. After receiving the true label, the algorithm then reduces the weight of each incorrect expert by a factor of $\beta \in [0, 1)$.\\
+Solution:weighted majority vote and multiplicative weight updating. 
+The pseudocode for the algorithm is shown below.  
+
+Denote data classifier as $h$ and aggreator as $g$. The parameters of $h$(resp. $g$) is $\theta_h$(resp. $\theta_g$);the learning rate of $h$(resp. $g$) is $\alpha_h$(resp. $\alpha_g$).The dataset is D.
+\begin{algorithm}
+\caption{Adaptive Difficulty}
+
+Initialization for the experts parameters of aggreator: $ W_{c,c'}^m = \log{\frac{\sum\limits_{i=1}^N Q(y_i=c)\mathbb{I}(y_i^m=c')}{\sum\limits_{i=1}^N Q(y_i=c)}}$(Refer  to Page 13 in our paper)\\
+Initialization for $p$ using naive Bayes based on the experts parameters in aggreator.\\
+Using p to initialize for the prior parameters of aggreator。\\
+batch size = 64 , T = 100 \\
+
+\For {$t = 1, 2, ..., T$} {
+	Batch $(X,Y))_{64} \sim D$\\
+	$left_{out} = h(X,Y)$\\
+	$right_{out} = g(X,Y)$\\
+	$Loss = - MIG(left_{out},right_{out},p)$(Refer  to Page 5 in our paper)\\
+	
+	$\theta_h = \theta_h - \alpha_{h}\nabla_{\theta_h}Loss$\\
+	$\theta_g = \theta_g - \alpha_{g}\nabla_{\theta_g}Loss$\\
+	$p = GetPara(g)$
+	
+
+}
+\end{algorithm}
+
+The number of mistakes made by the algorithm in T rounds:$L_T$ := $\sum^{T}_{t = 1} I[\hat{y_t} \neq y_t]$\\
+The number of mistakes made by expert  $E_i$ in T rounds:$m_T^{(i)} := \sum^T_{t = 1}I[\hat{y}_{t,i} \neq y_t]$\\
+	
+	
+\theorem{(Regret Bound)}
+
+Fix $\beta \in [0,1)$. Let $L_T$ be the number of mistakes made by algorithm 1 after $T\ge 1$ rounds, and $m_T^{(i)}$ be the number of mistakes made by expert $E_i$.Then,the following inequality holds:
+
+$$L_T \leqslant \frac{log \frac{1}{\beta}}{log \frac{2}{1 + \beta}} * min_{i \in [n]} m_T^{(i)} + \frac{logn}{log \frac{2}{1 + \beta}}$$\\
+
+\begin{proof}
+(Potential Function Method)
+
+
+	We define our potential function as $W_t := \sum^n_{i=1}w_{t,i}$If the algorithm makes a wrong prediction at round t,this implies that\\
+	$$W_{t+1} \leqslant (\frac{\beta +1}{2})W_t$$\\
+	Since $W_1=n$ and $L_T$ mistakes are made after $T$ rounds,we thus have the following upper bound:
+	$$W_T \leqslant  (\frac{\beta + 1}{2}) ^{L_T}*n  $$
+	
+	Since the weighs are non-negative and $W_T = \sum ^{n}_{i=1} w_{T,i}$,it's clear that $\forall i \in 1,2,\dots,n$,$W_T \ge w_{T,i}$.
+$w_{t,i}$ updates only if i makes wrong prediction and the voting prediction is wrong on day t,so $w_{T,i} \geqslant \beta^{m_T^{(i)}}$.Combining them together, we have:
+	$$\beta^{m_T^{(i)}} \le W_T \leqslant  (\frac{\beta + 1}{2}) ^{L_T}*n  $$
+	$$\Rightarrow L_T \leqslant \frac{log \frac{1}{\beta}}{log \frac{2}{1 + \beta}} * min_{i \in [n]} m_T^{(i)} + \frac{logn}{log \frac{2}{1 + \beta}}$$
+	
+
+\end{proof}
+
+\subsection{Randomized weighted majority algorithm}
+
+In the randomized scenario of on-line learning,at each round $t \in [1,T]$,the on-line algorithm make predictions on the distribution $p_t$ over the set of experts,and receives a loss vector $l_t$,whose $i$ component $l_{t,i} \in \{0,1\}$ is the loss associated with action i.Let $L_T$ be the expected total loss incurred by the learning algorithm over T rounds, $m_{T,i}$ be the total loss of expert i.
+
+The difference between randomized algorithm and deterministic algorithm:
+
+1.The randomized algorithm makes randomized predictions.
+
+2.The expert's weight is updated whenever its prediction is wrong.
+
+
+The algorithm is shown below.
+\begin{algorithm}
+\caption{Randomized multiplicative weight updating}
+
+initialize:  $w_{1, i} = 1,p_{1,i} =\frac{1}{N}$ for all $i \in [n]$\\
+\For {$t = 1, 2, ..., T$} {
+    Receive($l_t$)\\
+		\For{$i = 1,2, ...,n$}{
+		\If{$l_{t,i}=1$}{
+		    $w_{t+1, i} \gets \beta \cdot w_{t, i} $ 
+		    }
+		\Else{$w_{t+1, i} \gets  w_{t, i} $ 
+}
+	
+}
+$W_{t+1}=\sum\limits_{i=1}^{N}w_{t+1,i}$\\
+      \For{$i = 1,2, ...,n$}{
+      $p_{t+1,i}=\frac{w_{t+1,i}}{W_{t+1}}$
+      }
+}
+\end{algorithm}
+
+
+\theorem{}
+	
+Fix $\beta \in [\frac{1}{2},1).$,then the loss of the randomized algorithm on any sequence can be bounded as follows:
+$$L_T \leqslant (2-\beta)*min_{i \in [n]} m_T^{(i)} + \frac{logn}{1-\beta}$$
+
+In particular,let $\beta =\max(\frac{1}{2}, 1 - \sqrt{\frac{logn}{T}})$ ,then the loss can be bounded as:
+$$L_T \leqslant min_{i \in [n]}m_{T,i} + O(\sqrt{Tlogn})$$
+
+\begin{proof}
+Left as an exercise.
+\end{proof}
+
+Notice that we have $\frac{L_T}{T} \leqslant min_{i \in [n]}\frac{m_{T,i}}{T} + O(\sqrt{\frac{logn}{T}})$,fixed n ,average regret per round decreases as $O(\frac{1}{\sqrt{T}})$.
+
+Howerver,the bound assumes that the algorithm additionallu receives T as a parameter.We can use  doubling trick to relax this requirement at the price of a small constant factor.This consists of dividing time into periods $[2^k,2^{k+1}-1]$ of length $2^k$ with $k=0,\dots,m$ and $T \ge 2^m-1$,and choose $\beta=\max(\frac{1}{2}, 1 - \sqrt{\frac{logn}{2^k}})$ in each period.We will get the same bound using doubling trick,
+
+
+\subsection{Proof of minimax theorem}
+\theorem{}Consider the two-person zero-sum game defined by matrix M $\in \mathbb{R}^{n \times n}$ and the scenario is similar to the randomized weighted majority algorithm.Assuming the $i^{th}$ expert is the row player of the $i^{th}$ row.Then the $i^{th}$ elements of vector $p_t$ denotes the $i^{th}$ expert's weighted on round t.We have the following on-line learning regret bound:
+
+$$\sum^T_{t=1}p^T_tMq_t \leqslant \frac{log \frac{1}{\beta}}{1-\beta}\sum^T_{t=1}e^T_iMq_t + \frac{logn}{1-\beta},\forall i \in [n] $$
+	Let $\beta = \frac{1}{1+\sqrt{\frac{2logn}{T}}}$,
+	we have :$$\frac{1}{T}\sum^T_{t=1}p^T_tMq_t \leqslant \frac{1}{T} \sum^T_{t=1}l^T_iMq_t + O(\sqrt{\frac{logn}{T}})  $$
+
+\begin{proof}
+Left as an exercise.
+\end{proof}
+
+	
+\theorem{Minimax theorem:}
+The two-person zero-sum game defined by matrix M $\in \mathbb{R}^{n \times n}$
+$$\min\limits_p\max\limits_q p^TMq=\max\limits_q\min\limits_p p^TMq$$ 
+\begin{proof}
+The inequality $\min\limits_p\max\limits_q p^TMq \ge \max\limits_q\min\limits_p p^TMq$ is straight forward.
+
+To show the reverse inequality,consider an on-line learning setting where the vector $p_t$ denotes experts' weights on round t.We can assume that $q_t$ is selected in the optimal adversarial way.
+
+To begin with,the loss of row player in one shot zero sum game can not exceed the total loss of row player after T rounds,that is $$\min\limits_p\max\limits_q p^TMq \le \max\limits_q(\frac{1}{T}\sum\limits_{t=1}^{T}p_t)^TMq \le \frac{1}{T}\sum\limits_{t=1}^{T}\max\limits_qp_t^TMq=\frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t$$Secondly,assume i is the best row plauer,using the bound in theorem 10.2,we have $$\frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t \le \frac{1}{T}\sum\limits_{t=1}^{T}e_i^TMq_t+O(\sqrt{\frac{logn}{T}})$$.
+
+The right-hand side can be expressed and bounded as follows:
+$$\frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t \le \frac{1}{T}\sum\limits_{t=1}^{T}e_i^TMq_t+O(\sqrt{\frac{logn}{T}}) \le e_i^TM(\frac{1}{T}\sum\limits_{t=1}^{T}q_t)+O(\sqrt{\frac{logn}{T}}) \le \max\limits_q e_i^TMq +O(\sqrt{\frac{logn}{T}})$$
+
+So,$\forall p \succeq 0,||p||_1=1,p \in \mathbb{R}^n$,we have
+$$\frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t=\sum\limits_{i=1}^n p_i(\frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t) \le \sum\limits_{i=1}^n p_i(\max\limits_q e_i^TMq+O(\sqrt{\frac{logn}{T}}))=\max\limits_q p^TMq+O(\sqrt{\frac{logn}{T}})$$
+$$\Rightarrow \frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t \le \max\limits_q\min\limits_p p^TMq+O(\sqrt{\frac{logn}{T}})$$
+
+Since $\lim\limits_{T \to +\infty}\sqrt{\frac{logn}{T}} =0$,we have
+$$\min\limits_p\max\limits_q p^TMq \le \frac{1}{T}\sum\limits_{t=1}^{T}p_t^TMq_t \le \max\limits_q\min\limits_p p^TMq$$
+\end{proof}
+
+
+
+
+\section{Two papers in ICLR 2018}
+\subsection{SGD learns Over-parameterized Networks that Provably Generalize on Linearly Separable data}
+
+Content:
+
+1)During training,optimization converges to global optima(SGD)
+
+
+2)SGD finds a global optima which has good generalization ability.
+
+3)The paper's assumptions:The architecture is a two layer network and the data is linear separable.
+
+Can you study other networks which are more closed to practical use in this direction or weaken this paper's assumptions?
+
+\subsection{The Implicit Bias of Gradient Descent of Separable Data}
+
+Content:Logistic regression on linear separable data converges to the maximum margin solution
+
+\section{Unsupervised Learning}
+\subsection{Clustering}
+
+There are n data points $x_1,x_2,\dots,x_n \in \mathbb{R}^d$,assuming the existence of  K clusters among these data.The task is to find K cluster center $c_1,c_2,\dots,c_k $ and the  objection is to minimize the sum of distance to their center,i.e $\min\limits_{\substack{c_1,\dots,c_k \\\ \text{partition of } x_1,x_2,\dots ,x_n}}\sum\limits_{i=1}^n||x_i-c_i||^2$.Although finding an exact solution to the k-means problem for arbitrary input is NP-hard, the standard approach to finding an approximate solution (often called Lloyd's algorithm or the k-means algorithm) is used widely and frequently finds reasonable solutions quickly.
+
+\begin{algorithm}[H]
+\caption{K-means Algorithm}
+Initialize: stochasticly select K cluster centers $\vec c=c_1,c_2,\dots,c_k$\\
+\Do{cluster center vector $\vec c$ changes}{
+classify n data points by cluster centers $c_1,c_2,\dots,c_k$\\
+calculate new centers vector $\vec c$
+}
+\Return{$\vec c$}
+\end{algorithm}
+
+  However,the approximation found can be arbitrarily bad with respect to the objective function compared to the optimal clustering.The k-means++ algorithm addresses this obstacle by specifying a procedure to initialize the cluster centers before proceeding with the standard k-means optimization iterations. With the k-means++ initialization, the algorithm is guaranteed to find a solution that is $O(\log k)$ competitive to the optimal k-means solution.(to be continued)
+%\section*{References}
+%\beginrefs
+%\bibentry{AGM97}{\sc N.~Alon}, {\sc Z.~Galil} and {\sc O.~Margalit},
+%On the Exponent of the All Pairs Shortest Path Problem,
+%{\it Journal of Computer and System Sciences\/}~{\bf 54} (1997),
+%pp.~255--262.
+
+%\bibentry{F76}{\sc M. L. ~Fredman}, New Bounds on the Complexity of the 
+%Shortest Path Problem, {\it SIAM Journal on Computing\/}~{\bf 5} (1976), 
+%pp.~83-89.
+%\endrefs
+
+
+\end{document}
+
+
+
+
+
+w

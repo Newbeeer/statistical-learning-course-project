@@ -1,9 +1,12 @@
 # Data Difficulty Specified Crowdsourcing
 
-*statistical learning course project*
+This is our team project for *Statistical Learning* (2018 Fall) by Yilun Xu, Tianyuan Zhang, Dinghuai Zhang and Weiyi Zhang.
 
+This project focuses on a data difficulty specified algorithm of crowdsourcing.
 
+The final report is in `report`.
 
+-----
 Required environment:
 
 ```
