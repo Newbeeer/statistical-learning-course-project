@@ -4,7 +4,7 @@ cotraining - main file for training and testing
 import torch
 import torch.nn.functional as F
 from model import right_model_em,right_model_agg,right_model_fix
-from logistic import left_model_em,left_model_agg,left_model_fix,left_model_supervised,left_model_majority
+from model_logistic import left_model_em,left_model_agg,left_model_fix,left_model_supervised,left_model_majority
 from data_logistic import *
 from util import *
 from torch.autograd import Variable

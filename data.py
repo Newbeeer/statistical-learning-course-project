@@ -156,24 +156,18 @@ class Im_EP(torch.utils.data.Dataset):
 
             #Case 3: 10 big experts, each experts have 2 small experts seperately.  Attention! Cifar should change!
             if Config.experiment_case == 3:
+                for expert in range(self.expert_num):
 
-                for expert in range(Config.senior_num):
-                    if Config.missing and missing_seed[i][expert] < self.missing_label[expert]:
-                        continue
-                    ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=self.as_expertise[expert][labels[i]]))
+                    if labels[i] == 0:
+                        prob = 1 / (3 + int(np.random.choice(5,1)))
+                        ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=[1-prob, prob]))
+
+                    if labels[i] == 1:
+                        prob = 1 / (3 + int(np.random.choice(5, 1)))
+                        #prob = 1 / (1 + np.exp(-Config.as_expertise_lambda[expert][1] * (self.mu[i]-0.5)**2))
+                        ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=[prob, 1-prob]))
+
                     right_data[i][expert][ep[i][expert]] = 1
-                if args.expertise == 0:
-                    #5 little experts
-                    for expert in range(Config.senior_num,Config.expert_num):
-                        #ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=self.as_expertise[expert][ep[i][0]]))
-                        ep[i][expert] = ep[i][0]
-                        right_data[i][expert][ep[i][expert]] = 1
-
-                elif args.expertise == 1:
-                    for expert in range(Config.senior_num,Config.expert_num):
-                        #ep[i][expert] = int(np.random.choice(Config.num_classes, 1, p=self.as_expertise[expert][ep[i][0]]))
-                        ep[i][expert] = ep[i][0]
-                        right_data[i][expert][ep[i][expert]] = 1
 
 
             #Case 4: 5 normal experts, other 5 experts rely on the majority vote of some of experts in the former.

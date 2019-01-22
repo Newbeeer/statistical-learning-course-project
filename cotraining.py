@@ -60,7 +60,8 @@ def train_fix():
         right_outputs = right_outputs[:, 1].float()
         right_label += list(right_outputs.detach().cpu().numpy())
     right_label = torch.FloatTensor(right_label)
-    np.save('./labels/fix_majority_label.npy', right_label.detach().cpu().numpy())
+    if Config.save:
+        np.save('./labels/fix_majority_label.npy', right_label.detach().cpu().numpy())
     train_dataset_fix.label_update(right_label)
 
 def train_em():
@@ -110,14 +111,16 @@ def train_em():
         right_label += list(right_outputs.detach().cpu().numpy())
     right_label = torch.FloatTensor(right_label)
     train_dataset_em.label_update(right_label)
-    np.save('./labels/em_label.npy', right_label.detach().cpu().numpy())
+    if Config.save:
+        np.save('./labels/em_label.npy', right_label.detach().cpu().numpy())
 
 def train_m():
 
     # training
     left_model_m.train()
-    data_loader_supervised = torch.utils.data.DataLoader(dataset=train_dataset_supervised,
-                                                          batch_size=Config.batch_size, shuffle=True)
+    data_loader_supervised = torch.utils.data.DataLoader(dataset=train_dataset_supervised,batch_size=Config.batch_size, shuffle=False)
+
+
     for batch_idx, (left_data, right_data, label) in enumerate(train_loader_supervised):
 
         images = Variable(left_data).float().cuda()
@@ -130,17 +133,19 @@ def train_m():
         left_optimizer_m.step()
 
     right_label = []
+    correct_label = []
     for batch_idx, (left_data, right_data, label) in enumerate(data_loader_supervised):
 
-
-
+        images = Variable(left_data).float().cuda()
         left_outputs = left_model_m(images)
         right_outputs = left_outputs[:, 1].float()
         right_label += list(right_outputs.detach().cpu().numpy())
-
+        correct_label += list(label.detach().cpu().numpy())
     right_label = torch.FloatTensor(right_label)
-    np.save('./labels/m_label.npy', right_label.detach().cpu().numpy())
-
+    correct_label = torch.FloatTensor(correct_label)
+    if Config.save:
+        np.save('./labels/m_label.npy', right_label.detach().cpu().numpy())
+        np.save('./labels/correct_label.npy', correct_label.detach().cpu().numpy())
 
 def train_agg():
     # AggNet
@@ -162,7 +167,6 @@ def train_agg():
         loss = F.binary_cross_entropy(right_outputs[:, 1].float() + (right_outputs[:, 1] < 0.01).float() * 0.01, label)
         loss.backward()
         left_optimizer_agg.step()
-
 
 
     right_outputs_all = []
@@ -198,7 +202,8 @@ def train_agg():
         right_label += list(right_outputs.detach().cpu().numpy())
 
     right_label = torch.FloatTensor(right_label)
-    np.save('./labels/agg_label.npy', right_label.detach().cpu().numpy())
+    if Config.save:
+        np.save('./labels/agg_label.npy', right_label.detach().cpu().numpy())
     train_dataset_agg.label_update(right_label)
 
 
@@ -333,10 +338,10 @@ if __name__ == '__main__':
         train_em()
         train_fix()
         train_m()
-
-        right_model_fix.print_save_expertise('fixdog')
-        right_model_em.print_save_expertise('emdog')
-        right_model_agg.print_save_expertise()
+        if Config.save:
+            right_model_fix.print_save_expertise('fixdog')
+            right_model_em.print_save_expertise('emdog')
+            right_model_agg.print_save_expertise()
         acc_em, auc_em, acc_agg, auc_agg, acc_fix, auc_fix, acc_m, auc_m = test(epoch)
 
         best_agg, best_agg_auc = max(best_agg, acc_agg), max(best_agg_auc, auc_agg)
